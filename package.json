@@ -1,0 +1,20 @@
+{
+  "name": "learningReact",
+  "version": "1.0.0",
+  "description": "这个项目主要是对react进行整理，因为发现自7月学习react以来自己总是会忘记一些好用的Api，所以在此重新整理一下react的知识。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChunchunIsMe/learningReact.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChunchunIsMe/learningReact/issues"
+  },
+  "homepage": "https://github.com/ChunchunIsMe/learningReact#readme"
+}
