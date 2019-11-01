@@ -6,4 +6,4 @@
 目录:
 
 1. [起步](https://github.com/ChunchunIsMe/learningReact '起步')
-2. [核心概念](https://github.com/ChunchunIsMe/studyWebpack/tree/master/basic '核心概念')
+2. [核心概念](https://github.com/ChunchunIsMe/learningReact/tree/master/basic '核心概念')
