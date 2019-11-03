@@ -123,3 +123,21 @@ export default Oblong;
 ```
 或者是写两个个useState分别储存长和宽，从而达到以上的功能。 
 # 使用 Effect Hook
+如果你熟悉 React class 的生命周期函数，你可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
+
+下面是它的基本用法
+```
+useEffect(() => {
+  // 每次实例创建的时候都会调用这个函数
+  // 第二个参数数组中的值变化时才会调用该函数，如果数组为空则只在实例创建时调用该函数
+  // 如果没有第二个参数则在实例创建和每次组件更新都会调用该函数
+  // 这里相当于componentDidMount和componentDidUpdate 
+
+  return () => {
+    // useEffect 返回一个函数（可选）
+    // 如果返回了该函数则会在组件将要销毁的时候调用
+    // 这里相当于componentWillUnmount
+  }
+},[第二个参数可选，是一个数组])
+```
+下面我们通过一个定时器的例子来说明吧,创建 Timer.js
