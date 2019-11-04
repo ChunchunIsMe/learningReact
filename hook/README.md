@@ -123,6 +123,8 @@ export default Oblong;
 ```
 或者是写两个个useState分别储存长和宽，从而达到以上的功能。 
 # 使用 Effect Hook
+> 如果你刚刚试过很多useState的用法你会发现useState是异步的，那要怎么实现类似setState的回调用法呢？接下来我们介绍Effect
+
 如果你熟悉 React class 的生命周期函数，你可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
 
 下面是它的基本用法
@@ -133,11 +135,45 @@ useEffect(() => {
   // 如果没有第二个参数则在实例创建和每次组件更新都会调用该函数
   // 这里相当于componentDidMount和componentDidUpdate 
 
+  // 最最需要注意的是：useEffect 使用的 state 是在第一次渲染的时候获取的。 获取的时候，如果是 0。由于一直没有重新执行 effect，所以 如果在setInterval 中让state+1 在闭包中使用的 state 始终是从第一次渲染时来的，所以就有了 state + 1 始终是 1 的现象。
+
   return () => {
     // useEffect 返回一个函数（可选）
-    // 如果返回了该函数则会在组件将要销毁的时候调用
-    // 这里相当于componentWillUnmount
+    // 如果返回了该函数则会在组件将要销毁的时候调用  
+    // 如果第二个参数不为空数组那么每次调用上面函数之前都会先调用这个函数销毁上一次的副作用
   }
 },[第二个参数可选，是一个数组])
+
+如果useEffect第二个参数数组不是state或者state的属性，即使值改变也不会触发。
 ```
 下面我们通过一个定时器的例子来说明吧,创建 Timer.js
+```
+import React, { useEffect, useState } from 'react';
+
+function Timer() {
+  const [time, useTime] = useState(0);
+  const [on, setOn] = useState(false);
+  let id = null;
+  useEffect(() => {
+    // 这里做的原因是再生成一个闭包来暂时储存变化的值
+    let val = time;
+    id = setInterval(() => {
+      val++;
+      useTime(val);
+    }, 1000);
+    return () => {
+      clearInterval(id);
+    }
+  }, [on])
+
+  return (
+    <div>
+      <div>{time}</div>
+      <button onClick={() => { useTime(0); setOn(!on) }}>resultTime</button>
+    </div>
+  )
+}
+
+export default Timer;
+```
+## 

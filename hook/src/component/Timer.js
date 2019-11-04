@@ -2,47 +2,23 @@ import React, { useEffect, useState } from 'react';
 
 function Timer() {
   const [time, useTime] = useState(0);
-  const [count, useCount] = useState(0);
-
+  const [on, setOn] = useState(false);
+  let id = null;
   useEffect(() => {
-    console.log('change1')
+    let val = time;
+    id = setInterval(() => {
+      val++;
+      useTime(val);
+    }, 1000);
     return () => {
-      console.log('directory1')
+      clearInterval(id);
     }
-  })
-
-  useEffect(() => {
-    console.log('change2')
-    return () => {
-      console.log('directory2')
-    }
-  }, [])
-
-  useEffect(() => {
-    console.log('change3')
-    return () => {
-      console.log('directory3')
-    }
-  }, [time])
-
-  useEffect(() => {
-    console.log('change4')
-    return () => {
-      console.log('directory4')
-    }
-  }, [count])
-
-  useEffect(() => {
-    console.log('change5')
-    return () => {
-      console.log('directory5')
-    }
-  }, [time, count])
+  }, [on])
 
   return (
     <div>
-      <button onClick={() => useTime(time + 1)}>add time</button>
-      <button onClick={() => useCount(count + 1)}>add count</button>
+      <div>{time}</div>
+      <button onClick={() => { useTime(0); console.log(time); setOn(!on) }}>resultTime</button>
     </div>
   )
 }
