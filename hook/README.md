@@ -176,4 +176,34 @@ function Timer() {
 
 export default Timer;
 ```
-## 
+## 自定义hook
+自定义hook可以将组件逻辑提取到可重用的函数中。比如我们来创建一个获取浏览器窗口大小的自定义hook。创建src/component/useWindowSize.js
+```
+import { useEffect, useState } from 'react';
+
+function useWindowSize() {
+  const [size, setSize] = useState({
+    width: window.innerHeight,
+    height: window.innerHeight
+  })
+
+  useEffect(() => {
+    const handler = () => {
+      setSize({
+        width: window.innerHeight,
+        height: window.innerHeight
+      })
+    }
+    window.addEventListener('resize', handler)
+    return () => {
+      window.removeEventListener('resize', handler);
+    }
+  }, [])
+  return size;
+}
+
+export default useWindowSize;
+```
+> 注意：自定义hook只能在函数式组件中调用！不能在其他地方进行调用。
+
+自定义组件的功能非常强大，在网上找了一个[库](https://github.com/zenghongtu/react-use-chinese '库')它使用自定义组件封装了很多东西，我们之前的例子useWindowSize就是模仿其中的一个自定义hook写的。

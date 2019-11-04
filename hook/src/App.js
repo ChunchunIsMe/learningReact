@@ -3,6 +3,9 @@ import Count from './component/Count';
 import CountClass from './component/CountClass';
 import Oblong from './component/Oblong';
 import Timer from './component/Timer';
+import HookCustom from './component/HookCustom';
+import Search from './component/Search';
+import ShowSearch from './component/ShowSearch';
 
 class App extends Component {
   constructor(props) {
@@ -20,6 +23,9 @@ class App extends Component {
         <Oblong />
         {show && <Timer />}
         <button onClick={() => { this.setState(({ show }) => ({ show: !show })) }}>切换</button>
+        <HookCustom />
+        <Search />
+        <ShowSearch />
       </div>
     );
   }
