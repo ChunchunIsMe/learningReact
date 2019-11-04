@@ -206,4 +206,27 @@ export default useWindowSize;
 ```
 > 注意：自定义hook只能在函数式组件中调用！不能在其他地方进行调用。
 
+然后我们创建一个函数式组件来用他吧，创建src/component/HookCustom.js
+```
+import React from 'react';
+import useWindowSize from './useWindowSize';
+
+function HookCustom() {
+  const { width, height } = useWindowSize();
+  return (
+    <div>
+      <div>
+        宽：{width}
+      </div>
+      <div>
+        高：{height}
+      </div>
+    </div>
+  )
+}
+
+export default HookCustom;
+```
+最后我们在App.js中用他就好了
+
 自定义组件的功能非常强大，在网上找了一个[库](https://github.com/zenghongtu/react-use-chinese '库')它使用自定义组件封装了很多东西，我们之前的例子useWindowSize就是模仿其中的一个自定义hook写的。
