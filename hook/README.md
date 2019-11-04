@@ -23,7 +23,7 @@ React 没有提供将可复用性行为“附加”到组件的途径（例如�
 
 为了解决这些问题，Hook 使你在非 class 的情况下可以使用更多的 React 特性。
 # 使用 State Hook
-我们通过写一个计数器的例子来介绍useState,创建src/component/Count.js
+我们通过写一个计数器的例子来介绍useState,创建src/component/state/Count.js
 ```
 import React, { useState } from 'react';
 
@@ -43,7 +43,7 @@ export default Count;
 
 而useState的用法也很容易从上面的代码看出来，在useState函数调用时传入一个初始值，随后该函数会返回值和使用它的方法的一个数组([值, 更新方法])当我们需要更新值时，我们可以调用这个更新方法，如上面的useCount，我们直接`useCount(值)`就将新的值赋给了state变量。
 
-我们加上一个同样效果的class组件进行对比，这样就会让代码一目了然,新建 src/component/CountClass.js
+我们加上一个同样效果的class组件进行对比，这样就会让代码一目了然,新建 src/component/state/CountClass.js
 ```
 import React, { Component } from 'react';
 
@@ -176,8 +176,8 @@ function Timer() {
 
 export default Timer;
 ```
-## 自定义hook
-自定义hook可以将组件逻辑提取到可重用的函数中。比如我们来创建一个获取浏览器窗口大小的自定义hook。创建src/component/useWindowSize.js
+# 自定义hook
+自定义hook可以将组件逻辑提取到可重用的函数中。比如我们来创建一个获取浏览器窗口大小的自定义hook。创建src/component/custom/useWindowSize.js
 ```
 import { useEffect, useState } from 'react';
 
@@ -206,7 +206,7 @@ export default useWindowSize;
 ```
 > 注意：自定义hook只能在函数式组件中调用！不能在其他地方进行调用。
 
-然后我们创建一个函数式组件来用他吧，创建src/component/HookCustom.js
+然后我们创建一个函数式组件来用他吧，创建src/component/custom/HookCustom.js
 ```
 import React from 'react';
 import useWindowSize from './useWindowSize';
@@ -230,3 +230,54 @@ export default HookCustom;
 最后我们在App.js中用他就好了
 
 自定义组件的功能非常强大，在网上找了一个[库](https://github.com/zenghongtu/react-use-chinese '库')它使用自定义组件封装了很多东西，我们之前的例子useWindowSize就是模仿其中的一个自定义hook写的。
+# useContext
+`useContext(Mycontext)`接收一个context对象(即`React.createContext`的返回值)并返回当该context的值。当前的context值由上层组件中距离当前组件最近的<Mycontext.Provider>的value prop决定
+
+当组件上层最近的 `<MyContext.Provider>` 更新时，该 Hook 会触发重渲染，并使用最新传递给 MyContext provider 的 context value 值。
+
+> useContext(MyContext) 相当于 class 组件中的 static contextType = MyContext 或者 <MyContext.Consumer>。
+
+我们分别创建component/context 的 context.js、Outer.js、Inner.js 来示范它的用法。
+
+context.js
+```
+import { createContext } from 'react';
+
+const Mycontext = createContext(0);
+
+export default Mycontext;
+```
+Inner.js
+```
+import React, { useContext } from 'react';
+import MyContext from './context';
+
+function Inner() {
+  const value = useContext(MyContext);
+  return (
+    <div>
+      context value: {value}
+    </div>
+  )
+}
+
+export default Inner;
+```
+Outer.js
+```
+import React, { useState } from 'react';
+import Inner from './Inner';
+import MyContext from './context';
+
+function Outer() {
+  const [val, setVal] = useState(0)
+  return (
+    <MyContext.Provider value={val}>
+      <Inner />
+      <button onClick={() => setVal(val + 1)}>add val</button>
+    </MyContext.Provider>
+  )
+}
+
+export default Outer;
+```

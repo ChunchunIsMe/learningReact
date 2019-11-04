@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import Count from './component/Count';
-import CountClass from './component/CountClass';
-import Oblong from './component/Oblong';
-import Timer from './component/Timer';
-import HookCustom from './component/HookCustom';
-import Search from './component/Search';
-import ShowSearch from './component/ShowSearch';
+import Count from './component/state/Count';
+import CountClass from './component/state/CountClass';
+import Oblong from './component/state/Oblong';
+import Timer from './component/effect/Timer';
+import HookCustom from './component/custom/HookCustom';
+import Search from './component/custom/Search';
+import ShowSearch from './component/custom/ShowSearch';
+import CheckEffect from './component/effect/CheckEffect';
+import Outer from './component/context/Outer';
 
 class App extends Component {
   constructor(props) {
@@ -21,11 +23,13 @@ class App extends Component {
         <Count />
         <CountClass />
         <Oblong />
+        <CheckEffect />
         {show && <Timer />}
         <button onClick={() => { this.setState(({ show }) => ({ show: !show })) }}>切换</button>
         <HookCustom />
         <Search />
         <ShowSearch />
+        <Outer />
       </div>
     );
   }
