@@ -285,7 +285,7 @@ export default Outer;
 基本用法：
 ```
 const [state, dispatch] = useReducer(reducer, initialArg, init);
-``
+```
 它接收3个参数，分别为reducer、初始state、惰性初始化state
 
 这里基本和redux一样，我就不多细讲了。我们主要来讲讲第三个参数
