@@ -292,7 +292,8 @@ const [state, dispatch] = useReducer(reducer, initialArg, init);
 
 > 第三个参数 init 是什么？它是一个可选值，可以用来惰性提供初始状态。这意味着我们可以使用使用一个 init 函数来计算初始状态/值，而不是显式的提供值。如果初始值可能会不一样，这会很方便，最后会用计算的值来代替初始值。
 
-我们接下来就写一个计数器的例子吧，新建src/component/reducer/NumCount.js
+我们接下来就写一个计数器的例子吧，新建src/component/reducer/NumCount.js
+
 ```
 import React, { useReducer } from 'react';
 
