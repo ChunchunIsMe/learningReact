@@ -10,7 +10,9 @@ import CheckEffect from './component/effect/CheckEffect';
 import Outer from './component/context/Outer';
 import NumCount from './component/reducer/NumCount';
 import Father from './component/memoAndCallback/Father';
-
+import RefClass from './component/ref/RefClass';
+import RefFun from './component/ref/RefFun';
+import Deom from './component/imperativeHandle/Demo'
 class App extends Component {
   constructor(props) {
     super(props);
@@ -35,6 +37,9 @@ class App extends Component {
         <NumCount num={0} />
         <NumCount num={10} />
         <Father />
+        <RefClass />
+        <RefFun />
+        <Deom />
       </div>
     );
   }

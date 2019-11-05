@@ -548,3 +548,128 @@ export default Children;
 我们将其修改之后，还在Right组件中使用set记录了每次调用Right函数是否生成了新的dom和function，我们可以看到储存函数的set长度一直都是1，但是储存dom的set在右边颜色改变的时候长度会+1但是在左边颜色没有改变的时候set的长度并不会+1。
 
 至此我们使用useContext、useReducer和Context写了一个状态管理器，然后使用useMemo和useCallback解决了它的性能问题。
+
+# useRefs
+我们先来看看在class组件中ref的用法。创建src/component/ref/RefClass.js
+```
+import React, { Component } from 'react';
+
+class RefClass extends Component {
+  constructor(props) {
+    super(props);
+    this.myRef = React.createRef();
+  }
+
+  render() {
+    return (
+      <div>
+        <input ref={this.myRef} />
+        <button onClick={() => console.log(this.myRef.current)}>see ref</button>
+        <CustomTextInput inputRef={(e) => { this.input = e }} />
+        <button onClick={() => console.log(this.input.value)}>see ref</button>
+      </div>
+    )
+  }
+}
+
+function CustomTextInput(props) {
+  return (
+    <div>
+      <input ref={props.inputRef} />
+    </div>
+  )
+}
+
+export default RefClass;
+```
+它有两个用法
+1. 通过 React.createRef() 来访问 dom 或挂载实例
+2. 通过回调Refs的方式,给ref属性传入一个函数，函数接受React组件实例或者HTML DOM元素作为参数，并且在其他地方储存和访问
+
+而useRefs只是React.createRef()写法的另一个形式，上述代码如果换成函数式组件 新建src/component/ref/RefFun.js
+```
+import React, { useRef } from 'react';
+
+function RefFun() {
+  const myRef = useRef();
+  let input = null;
+  return (
+    <div>
+      <input ref={myRef} />
+      <button onClick={() => console.log(myRef.current)}>see ref</button>
+      <CustomTextInput inputRef={(e) => { input = e }} />
+      <button onClick={() => console.log(input.value)}>see ref</button>
+    </div>
+  )
+}
+
+function CustomTextInput(props) {
+  return (
+    <div>
+      <input ref={props.inputRef} />
+    </div>
+  )
+}
+
+export default RefFun;
+```
+但是useRef() 比 ref 属性更有用。它可以很方便地保存任何可变值。但是useRef并不会通知你，所以不会引起组件重新渲染。
+# useImperativeHandle
+在class组件中如果我们父级想要调用子组件的方法或获取子组件的属性我们可以让子组件的this绑定在父级的一个变量上，那么函数式组件没有this，我们该如何调用子组件为函数式组件的方法或属性呢
+
+这个时候就可以用到 useImperativeHandle
+
+基本用法
+```
+useImperativeHandle(ref, createHandle, [deps]);
+```
+1. 第一个值为父级传入的ref
+2. 第二个参数为一个函数，返回一个对象，对象中为函数式组件暴露出来的属性或者方法
+3. 第三个参数为依赖数组是可选参数，当依赖数组中的某个值改变时才会重新生成第二个参数中返回的对象
+4. useImperativeHandle应该配合useRef和forwardRef一起使用
+
+我们创建src/component/imperativeHandle/Demo.js 来示范其用法。
+```
+import React, { useImperativeHandle, useState, forwardRef, useRef } from 'react';
+
+function Demo() {
+  let children = useRef();
+  return (
+    <div>
+      <Child ref={children} />
+      <button onClick={() => children.current.setState(children.current.state + 1)}>Father add count</button>
+    </div>
+  )
+}
+
+function Com(props, ref) {
+  const [state, setState] = useState(0);
+  useImperativeHandle(ref, () => ({
+    state,
+    setState
+  }), [state])
+  return (
+    <div>
+      <div>{state}</div>
+      <button onClick={() => setState(state + 1)}>Child add count</button>
+    </div>
+  )
+}
+
+const Child = forwardRef(Com);
+
+
+export default Demo;
+```
+如果我们在useImperativeHandle的第三个参数为空数组，那么每次按下Father add count都会让子组件的state为1因为它并没有获取新的值。它每次获取的state都是初始的0，所以我们需要第三个参数设置state，每当state改变的时候就给父级ref新的值。当然如果没有第三个参数则不管什么state更新都会生成新的对象返回。
+# useLayoutEffect
+该Api用法和 useEffect 一致，不同的是useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。并且可以使用它来读取 DOM 布局并同步触发重渲染。
+
+所以这里不介绍具体用法了，具体用法可以看useEffect
+# useDebugValue
+useDebugValue 可用于在 React 开发者工具中显示自定义 hook 的标签。
+```
+useDebugValue(value)
+// 在开发者工具中的这个 Hook 旁边显示标签
+// e.g. "FriendStatus: value"
+```
