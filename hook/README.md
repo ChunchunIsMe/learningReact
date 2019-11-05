@@ -281,3 +281,269 @@ function Outer() {
 
 export default Outer;
 ```
+# useReducer
+基本用法：
+```
+const [state, dispatch] = useReducer(reducer, initialArg, init);
+``
+它接收3个参数，分别为reducer、初始state、惰性初始化state
+
+这里基本和redux一样，我就不多细讲了。我们主要来讲讲第三个参数
+
+> 第三个参数 init 是什么？它是一个可选值，可以用来惰性提供初始状态。这意味着我们可以使用使用一个 init 函数来计算初始状态/值，而不是显式的提供值。如果初始值可能会不一样，这会很方便，最后会用计算的值来代替初始值。
+
+我们接下来就写一个计数器的例子吧，新建src/component/reducer/NumCount.js
+```
+import React, { useReducer } from 'react';
+
+function init(num) {
+  const result = Number(num);
+  if (Number.isNaN(result)) {
+    throw new Error('not a number');
+  }
+  return result;
+}
+
+
+function NumCount({ num }) {
+  function reducer(state, action) {
+    switch (action.type) {
+      case 'add':
+        return state + 1;
+      case 'minus':
+        return state - 1;
+      case 'reset':
+        return num;
+      default:
+        throw new Error('error');
+    }
+  }
+
+  const [state, dispatch] = useReducer(reducer, num, init);
+
+  return (
+    <div>
+      <div>count: {state}</div>
+      <div>
+        <button onClick={() => dispatch({ type: 'add' })}>add count</button>
+        <button onClick={() => dispatch({ type: 'minus' })}>minus count</button>
+        <button onClick={() => dispatch({ type: 'reset' })}>reset count</button>
+      </div>
+    </div>
+  )
+}
+
+export default NumCount;
+```
+然后我们在App.js中使用它就能看到效果了。
+# useMemo、useCallback
+现在我们已经介绍完了useReducer、useContext和自定义hook，我们可以使用这两个来编写一个状态管理工具，然后我们通过这个状态管理工具来引出useMemo和useCallback
+
+首先创建src/component/memoAndCallback/下的 stroe.js、Father.js、Children.js实现一个状态管理工具的例子
+
+stroe.js
+```
+// stroe.js
+import { createContext } from 'react';
+
+const state = {
+  left: 'red',
+  right: 'green'
+}
+
+const Context = createContext(null)
+
+function reducer(state, action) {
+  let obj = {}
+  switch (action.type) {
+    case 'left':
+      obj = {
+        ...state,
+        left: state.left === 'red' ? 'yellow' : 'red'
+      }
+      break;
+    case 'right':
+      obj = {
+        ...state,
+        right: state.right === 'green' ? 'blue' : 'green'
+      }
+      break;
+  }
+  return obj;
+}
+
+export {
+  Context,
+  reducer,
+  state
+} 
+```
+Father.js
+```
+import React, { useReducer } from 'react';
+import { Context, reducer, state } from './stroe';
+import Childern from './Children';
+
+function Father() {
+  const re = useReducer(reducer, state);
+  return (
+    <Context.Provider value={re}>
+      <Childern />
+    </Context.Provider>
+  )
+}
+
+export default Father;
+```
+Children.js
+```
+import React, { useContext } from 'react';
+import { Context } from './stroe';
+
+function Children() {
+  return (
+    <div>
+      <Left />
+      <Right />
+    </div>
+  )
+}
+
+function Left() {
+  const [value, dispatch] = useContext(Context);
+  console.log('left');
+  return (
+    <div
+      style={{
+        display: 'inline-block',
+        width: '100px',
+        height: '100px',
+        backgroundColor: value.left,
+        marginRight: '10px'
+      }}
+      onClick={() => dispatch({ type: 'right' })}
+    >
+      点击我改变右边的颜色
+    </div>
+  )
+}
+
+function Right() {
+  const [value, dispatch] = useContext(Context);
+  console.log('right');
+  const click = () => dispatch({ type: 'left' })
+  return (
+    <div
+      style={{
+        display: 'inline-block',
+        width: '100px',
+        height: '100px',
+        backgroundColor: value.right,
+      }}
+      onClick={click}
+    >
+      点击我改变左边的颜色
+    </div>
+  )
+}
+
+export default Children;
+```
+然后我们将Father.js这个组件加到页面上，我们会发现Left和Right这两个组件之间进行通信了。但是你发现了吗，Right和Left组件的Click函数的写法不一样，嘿嘿这里的原因待会再告诉你
+
+但是你有没有发现一个问题？不管我是否改变组件Left需要的颜色还是改变Right需要的颜色，两个函数组件都被调用了！这样的话改变组件不需要的值时也会重新生成一个dom。并且每次调用Right组件函数的时候都会生成一个新的click函数！这是非常不合理的！
+
+我们需要解决它！是不是差点忘了我们这节课的主题？没错，我们将会使用useMemo和useCallback来解决上述性能问题
+
+我们先来介绍用法
+
+### useMemo
+```
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+它会返回一个memoized值
+
+它的作用就是把创建memoized的函数和依赖数组作为参数传入useMemo，它仅会在某个依赖项改变的时候才会重新计算memoized值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+
+记住，传入useMemo的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，比如useEffect这种副作用操作。
+
+如果没有依赖数组，那么useMemo每次渲染都会计算新的值进行返回。
+### useCallback
+```
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(a, b);
+  },
+  [a, b],
+);
+```
+返回一个 memoized 回调函数。
+
+其实`useCallback(fn, deps)` 相当于 `useMemo(() => fn, deps)`
+
+有了上面这两个方法我们就可以解决上面性能上的问题啦，修改Children.js
+```
+import React, { useContext, useCallback, useMemo } from 'react';
+import { Context } from './stroe';
+
+function Children() {
+  return (
+    <div>
+      <Left />
+      <Right />
+    </div>
+  )
+}
+
+function Left() {
+  const [value, dispatch] = useContext(Context);
+  console.log('left');
+  return useMemo(() => (
+    <div
+      style={{
+        display: 'inline-block',
+        width: '100px',
+        height: '100px',
+        backgroundColor: value.left,
+        marginRight: '10px'
+      }}
+      onClick={() => dispatch({ type: 'right' })}
+    >
+      点击我改变右边的颜色
+    </div>
+  ), [value.left])
+}
+
+const funSet = new Set();
+const domSet = new Set();
+
+function Right() {
+  const [value, dispatch] = useContext(Context);
+  console.log('right');
+  const click = useCallback(() => dispatch({ type: 'left' }), [])
+
+  const dom = useMemo(() => (
+    <div
+      style={{
+        display: 'inline-block',
+        width: '100px',
+        height: '100px',
+        backgroundColor: value.right,
+      }}
+      onClick={click}
+    >
+      点击我改变左边的颜色
+    </div>
+  ), [value.right])
+  funSet.add(click);
+  domSet.add(dom);
+  console.log(funSet);
+  console.log(domSet);
+  return dom;
+}
+
+export default Children;
+```
+我们将其修改之后，还在Right组件中使用set记录了每次调用Right函数是否生成了新的dom和function，我们可以看到储存函数的set长度一直都是1，但是储存dom的set在右边颜色改变的时候长度会+1但是在左边颜色没有改变的时候set的长度并不会+1。
+
+至此我们使用useContext、useReducer和Context写了一个状态管理器，然后使用useMemo和useCallback解决了它的性能问题。

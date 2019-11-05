@@ -8,6 +8,8 @@ import Search from './component/custom/Search';
 import ShowSearch from './component/custom/ShowSearch';
 import CheckEffect from './component/effect/CheckEffect';
 import Outer from './component/context/Outer';
+import NumCount from './component/reducer/NumCount';
+import Father from './component/memoAndCallback/Father';
 
 class App extends Component {
   constructor(props) {
@@ -30,6 +32,9 @@ class App extends Component {
         <Search />
         <ShowSearch />
         <Outer />
+        <NumCount num={0} />
+        <NumCount num={10} />
+        <Father />
       </div>
     );
   }
