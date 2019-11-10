@@ -7,4 +7,5 @@
 
 1. [起步](https://github.com/ChunchunIsMe/learningReact '起步')
 2. [核心概念](https://github.com/ChunchunIsMe/learningReact/tree/master/basic '核心概念')
-3. [hook](https://github.com/ChunchunIsMe/learningReact/tree/master/hook 'hook')
+4. [高级指引](https://github.com/ChunchunIsMe/learningReact/tree/master/guide 'guide')
+4. [hook](https://github.com/ChunchunIsMe/learningReact/tree/master/hook 'hook')

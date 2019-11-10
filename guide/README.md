@@ -206,3 +206,143 @@ function K() {
 
 还可以使用更简短的语法来声明Fragments。`<></>`除了它不支持key属性其他都一样。Fragments只支持key属性。
 
+## 高阶组件
+其实就是一个函数参数是一个组件然后返回一个组件，如：
+```
+function Hi (Ig) {
+  class Hii extends React.Component {
+    render() {
+      reurn (
+        <div>
+          <Ig />
+        </div>
+      )
+    }
+  }
+
+  return Hii;
+}
+```
+这样就简单写了一个是高阶组件，它让传进来的组件多包了一个div   hahah
+## 深入JSX
+JSX仅仅只是`React.createElement(component, props, ...children)`函数的语法糖
+```
+<MyButton color="blue" shadowSize={2}>
+  Click Me
+</MyButton>
+```
+会编译成
+```
+React.createElement(
+  MyButton,
+  {
+    color: 'blue',
+    shadowSize: 2
+  },
+  'Click Me'
+);
+```
+并且JSX使用的组件必须以大写字母开头，不然它会认为是html标签
+## Portals
+基本用法
+```
+ReactDom.createPortal(child, container);
+```
+第一个参数是任何可以渲染的React子元素。第二个参数是一个DOM元素。然后用这个方法渲染出来的child将会跳出父元素渲染到container下。
+
+例子：创建src/Portals/index.js
+```
+import React from 'react'
+import ReactDOM, { createPortal } from 'react-dom';
+
+function Portals() {
+  return (
+    <div>
+      <button>123</button>
+      <Child />
+    </div>
+  )
+}
+
+function Child() {
+  return createPortal(
+    <div>portal</div>,
+    document.getElementById('root')
+  )
+}
+
+export default Portals;
+```
+然后你就会发现portal这个单词跳出三界外了
+## Profiler
+### 用法
+Profiler能添加在React树中的任何地方来测量树中这部分渲染所带来的开销。它需要两个prop：一个是id(string)，一个是组件树中的组件提交更新的时候被React调用的回调函数 onRender(function)。
+
+例如：
+```
+<div>
+  <Profiler id='abc' onRender={callback}>
+    <Abc />
+  </Profiler>
+</div>
+```
+这样就可以分析 abc 组件和他的子代了。多个Profiler组件能测量应用中的不同部分
+### onRender
+onRender的函数会传入很多参数，我们一一来看
+1. id: string - 发生提交Profiler树的id。
+2. phase: "mount" | "update" 判断组件树的第一次装载引起的重渲染，还是由props、state 或是 hooks 改变引起的重渲染
+3. actualDuration：number 本次更新在渲染Profiler和它的子代上花费的时间。这个数值表明使用memoization之后能表现得多好
+4. baseDuration：number 在Profiler树中最近一次每一个组件render的持续时间。这个值估计了最差的渲染时间
+5. startTime: number 本次更新中React开始渲染的时间戳
+6. commitTime：number 本次更新中React commit 阶段结束的时间戳。在一次commit中这个值在所有profiler之间是共享的，可以将它们按需分组。
+7. interactions：Set ”interactions“的集合用来追踪已经列出的更新
+### 例子
+创建src/Profiler/index.js
+```
+import React from 'react';
+
+function Profiler() {
+  function big() {
+    arguments.forEach(ele => {
+      console.log(ele)
+    });
+  }
+
+  function child1() {
+    arguments.forEach(ele => {
+      console.log(ele)
+    });
+  }
+
+
+  return (
+    <Profiler id="big" onRender={big}>
+      <Profiler id="child1" onRender={child1}>
+        <Child1 />
+      </Profiler>
+      <Child2 />
+    </Profiler>
+  )
+}
+
+function Child1() {
+
+  return (
+    <div>
+      <div>Child1</div>
+    </div>
+  )
+}
+
+function Child2() {
+
+  return (
+    <div>
+      <div>Child1</div>
+    </div>
+  )
+}
+
+export default Profiler;
+```
+不知道为什么我用这个总会卡死，好像是要安装dev-tools才能用这个。
